@@ -15,10 +15,14 @@
     .btn-success { color: #fff !important; }
     .btn-danger { color: #fff !important; }
     .progress { height: 1rem; margin-bottom: 1.5rem; }
-    #submit-btn, #restart-btn { width: 100%; }
+    #submit-btn, #restart-btn, #restart-top { width: 100%; }
+    #restart-top { width: auto; margin-left: .5rem; }
+    .week-checkbox { margin-right: .75rem; }
     @media (max-width: 576px) {
       .card-body { padding: 1rem; }
       .option { font-size: .9rem; padding: .75rem; }
+      .week-checkbox { width: 48%; margin-bottom: .5rem; }
+      #restart-top { margin-top: .5rem; }
     }
   </style>
 </head>
@@ -30,6 +34,24 @@
   </nav>
 
   <div class="container py-4">
+    <!-- Előre beállítások és hét választó -->
+    <div class="mb-3 d-flex align-items-center flex-wrap">
+      <label class="form-label me-2 mb-0">Előre beállítás:</label>
+      <select id="preset-select" class="form-select form-select-sm w-auto mb-2">
+        <option value="all" selected>Mind</option>
+        <option value="q1">Első negyedév (2-5. hét)</option>
+        <option value="q2">Második negyedév (6-12. hét)</option>
+        <option value="custom">Egyéni</option>
+      </select>
+      <button id="restart-top" class="btn btn-secondary btn-sm mb-2">Újrakezdés</button>
+    </div>
+    <div class="mb-3">
+      <label class="form-label d-block">Hét kiválasztása:</label>
+      <div id="week-container" class="d-flex flex-wrap">
+        <!-- Checkboxok ide generálódnak -->
+      </div>
+    </div>
+
     <div class="progress" role="progressbar" aria-label="Előrehaladás">
       <div class="progress-bar bg-primary" style="width: 0%;"></div>
     </div>
@@ -43,85 +65,107 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
   <script>
-    const CSV_URL = 'ai_teszt_350_kerdes.csv';
+    const CSV_URL = 'mi_kviz_teljes_12het_220kerdes.csv';
     const NUM_QUESTIONS = 20;
     let questions = [], selected = [], answeredCount = 0;
 
+    document.addEventListener('DOMContentLoaded', () => {
+      loadCSV();
+      document.getElementById('restart-btn').addEventListener('click', startQuiz);
+      document.getElementById('restart-top').addEventListener('click', startQuiz);
+      document.getElementById('preset-select').addEventListener('change', () => {
+        applyPreset();
+        startQuiz();
+      });
+    });
+
     function loadCSV() {
       Papa.parse(CSV_URL, { download: true, header: true, complete: (res) => {
-        questions = res.data.filter(q => q.ID);
+        questions = res.data.filter(q => q['Kérdés']);
+        populateWeekCheckboxes();
+        applyPreset();
         startQuiz();
       }});
     }
 
+    function populateWeekCheckboxes() {
+      const container = document.getElementById('week-container');
+      const weeks = Array.from(new Set(questions.map(q => q['Hét']))).sort((a,b) => Number(a)-Number(b));
+      weeks.forEach(week => {
+        const div = document.createElement('div');
+        div.className = 'form-check week-checkbox';
+        div.innerHTML = `
+          <input class="form-check-input week-cb" type="checkbox" value="${week}" id="week-${week}">
+          <label class="form-check-label" for="week-${week}">${week}. hét</label>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function applyPreset() {
+      const preset = document.getElementById('preset-select').value;
+      document.querySelectorAll('.week-cb').forEach(cb => {
+        const w = Number(cb.value);
+        cb.checked = (preset === 'all')
+          || (preset === 'q1' && w >= 2 && w <= 5)
+          || (preset === 'q2' && w >= 6 && w <= 12);
+        if (preset === 'custom') cb.checked = false;
+      });
+    }
+
+    function getSelectedWeeks() {
+      return Array.from(document.querySelectorAll('.week-cb'))
+        .filter(cb => cb.checked)
+        .map(cb => cb.value);
+    }
+
     function startQuiz() {
-      selected = shuffle(questions).slice(0, NUM_QUESTIONS);
-      const container = document.getElementById('quiz-container');
-      container.innerHTML = '';
-      answeredCount = 0;
-      document.getElementById('result').textContent = '';
-      document.getElementById('submit-btn').disabled = true;
-      updateProgress();
+      const weeks = getSelectedWeeks();
+      if (!weeks.length) { alert('Legalább egy hetet válassz!'); return; }
+      const pool = questions.filter(q => weeks.includes(q['Hét']));
+      if (pool.length < NUM_QUESTIONS) {
+        alert(`Csak ${pool.length} kérdés van a kiválasztott heteken. Válassz több hetet vagy csökkentsd a kérdésszámot.`);
+        return;
+      }
+      selected = shuffle(pool).slice(0, NUM_QUESTIONS);
+      renderQuestions();
+    }
+
+    function renderQuestions() {
+      const container = document.getElementById('quiz-container'); container.innerHTML = '';
+      answeredCount = 0; document.getElementById('result').textContent = '';
+      document.getElementById('submit-btn').disabled = true; updateProgress();
+
       selected.forEach((q, idx) => {
-        const letters = ['A','B','C','D'];
-        const entries = letters.map(letter => ({
-          text: (q[letter]||'').trim(),
-          correct: letter === (q.Helyes||'').trim().toUpperCase()
-        }));
-        shuffle(entries);
-        const groupId = 'group-' + idx;
-        const card = document.createElement('div');
-        card.className = 'card';
+        const cols = ['Válasz A','Válasz B','Válasz C','Válasz D'];
+        let entries = cols.map((col,i) => ({ text: (q[col]||'').trim(), correct: (q['Helyes válasz']||'').trim().toUpperCase()===String.fromCharCode(65+i) }));
+        entries = shuffle(entries);
+        const groupId = 'group-'+idx;
+        const card = document.createElement('div'); card.className='card';
         card.innerHTML = `
           <div class="card-body">
-            <h5 class="card-title fw-semibold">${idx+1}. ${q.Kérdés}</h5>
+            <h5 class="card-title fw-semibold">${idx+1}. ${q['Kérdés']}</h5>
             <div id="${groupId}" class="d-grid gap-2 mt-3" data-correct="false">
-              ${entries.map((opt, i) =>
-                `<button class="btn btn-outline-secondary option" data-correct="${opt.correct}">${String.fromCharCode(65 + i)}) ${opt.text}</button>`
-              ).join('')}
+              ${entries.map((opt,i)=>`<button class=\"btn btn-outline-secondary option\" data-correct=\"${opt.correct}\">${String.fromCharCode(65+i)}) ${opt.text}</button>`).join('')}
             </div>
           </div>`;
         container.appendChild(card);
       });
-      document.querySelectorAll('.option').forEach(btn => btn.addEventListener('click', () => onAnswer(btn)));
+      document.querySelectorAll('.option').forEach(btn=>btn.addEventListener('click',()=>onAnswer(btn)));
+      document.getElementById('submit-btn').onclick = showScore;
     }
 
     function onAnswer(btn) {
       if (btn.disabled) return;
-      const group = btn.parentElement;
-      const correct = btn.getAttribute('data-correct') === 'true';
-      group.dataset.correct = correct;
-      btn.classList.replace('btn-outline-secondary', correct ? 'btn-success' : 'btn-danger');
-      if (!correct) {
-        const correctBtn = Array.from(group.children).find(b => b.getAttribute('data-correct')==='true');
-        if (correctBtn) correctBtn.classList.replace('btn-outline-secondary','btn-success');
-      }
-      Array.from(group.children).forEach(b => b.disabled = true);
-      answeredCount++;
-      updateProgress();
-      if (answeredCount === NUM_QUESTIONS) document.getElementById('submit-btn').disabled = false;
+      const grp = btn.parentElement; const ok = btn.getAttribute('data-correct')==='true';
+      grp.dataset.correct = ok; btn.classList.replace('btn-outline-secondary', ok?'btn-success':'btn-danger');
+      if (!ok) { const cb = Array.from(grp.children).find(b=>b.getAttribute('data-correct')==='true'); if(cb)cb.classList.replace('btn-outline-secondary','btn-success'); }
+      grp.querySelectorAll('button').forEach(b=>b.disabled=true); answeredCount++; updateProgress();
+      if(answeredCount===NUM_QUESTIONS)document.getElementById('submit-btn').disabled=false;
     }
-
-    function updateProgress() {
-      document.querySelector('.progress-bar').style.width = (answeredCount / NUM_QUESTIONS * 100) + '%';
-    }
-
-    function showScore() {
-      let score = 0;
-      document.querySelectorAll('[id^="group-"]').forEach(group => {
-        if (group.dataset.correct === 'true') score++;
-      });
-      document.getElementById('result').textContent = `Az összpontszámod: ${score} / ${NUM_QUESTIONS}`;
-      document.getElementById('submit-btn').disabled = true;
-    }
-
-    document.getElementById('submit-btn').addEventListener('click', showScore);
-    document.getElementById('restart-btn').addEventListener('click', startQuiz);
-    function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
-    loadCSV();
-  </script>
-  <script>
-    if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('./service-worker.js'));
+    function updateProgress(){ document.querySelector('.progress-bar').style.width=(answeredCount/NUM_QUESTIONS*100)+'%'; }
+    function showScore(){ let sc=0; document.querySelectorAll('[id^="group-"]').forEach(g=>{ if(g.dataset.correct==='true') sc++; }); document.getElementById('result').textContent=`Az összpontszámod: ${sc} / ${NUM_QUESTIONS}`; document.getElementById('submit-btn').disabled=true; }
+    function shuffle(a){ for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a; }
   </script>
 </body>
 </html>
