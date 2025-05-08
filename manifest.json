@@ -1,0 +1,8 @@
+{
+    "name": "AI Alapjai Kvíz",
+    "short_name": "Kvíz",
+    "start_url": "./index.html",
+    "display": "standalone",
+    "background_color": "#f8f9fa",
+    "theme_color": "#0d6efd"
+  }
