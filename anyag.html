@@ -10,133 +10,193 @@
   <style>
     body { padding-top: 56px; background-color: #f8f9fa; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; }
     .navbar { box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-    .content-section { padding: 2rem 0; }
-    .section-title { font-size: 1.75rem; font-weight: 600; margin-bottom: 1rem; }
-    .definition { font-weight: 500; }
-    .formula { background-color: #e9ecef; padding: .5rem; border-radius: .5rem; font-family: monospace; margin: .5rem 0; }
-    .example { background-color: #fff3cd; padding: 1rem; border-left: 4px solid #ffeeba; margin-bottom: 1rem; }
-    .sidebar-nav { position: sticky; top: 56px; }
+    .content { padding: 2rem; }
+    h2 { margin-top: 2rem; }
+    .definition { font-weight: bold; }
+    .formula, .example { margin-left: 1rem; }
+    .section { margin-bottom: 2rem; }
   </style>
 </head>
 <body>
-  <nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top">
-    <div class="container-fluid">
-      <a class="navbar-brand fw-bold" href="#">AI Alapjai – Jegyzet</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu" aria-controls="navMenu" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navMenu">
-        <ul class="navbar-nav ms-auto">
-          <li class="nav-item"><a class="nav-link" href="index.html">Vissza a kvízhez</a></li>
-        </ul>
-      </div>
-    </div>
-  </nav>
+<nav class="navbar navbar-light bg-white fixed-top">
   <div class="container-fluid">
-    <div class="row">
-      <nav class="col-md-3 d-none d-md-block bg-light sidebar sidebar-nav">
-        <div class="position-sticky pt-3">
-          <ul class="nav flex-column">
-            <li class="nav-item"><a class="nav-link" href="#week6">6. hét: Többdimenziós klasszifikáció</a></li>
-            <li class="nav-item"><a class="nav-link" href="#week7">7. hét: Neurális hálózatok</a></li>
-            <li class="nav-item"><a class="nav-link" href="#week8">8. hét: Tömörítés és generálás</a></li>
-            <li class="nav-item"><a class="nav-link" href="#week9">9. hét: Idősorok, RNN, LSTM</a></li>
-            <li class="nav-item"><a class="nav-link" href="#week10">10. hét: NLP</a></li>
-            <li class="nav-item"><a class="nav-link" href="#week11">11. hét: Transformer, LLM</a></li>
-            <li class="nav-item"><a class="nav-link" href="#week12">12. hét: Reinforcement Learning</a></li>
-          </ul>
-        </div>
-      </nav>
-      <main class="col-md-9 ms-sm-auto col-lg-9 px-md-4">
-        <!-- 6. hét -->
-        <section id="week6" class="content-section">
-          <h2 class="section-title">6. hét: Többdimenziós klasszifikáció</h2>
-          <p class="definition"><strong>Döntési fa (Decision Tree):</strong> Egy fa-szerkezet, ahol minden belső csomópont egy feature alapján kettévágja az adatot, és a levelek az osztályokat jelzik.</p>
-          <p><em>Split feltételek kiválasztása:</em></p>
-          <ul>
-            <li><strong>Gini-index:</strong>
-              <div class="formula">Gini = 1 - Σ<sub>k</sub> p<sub>k</sub><sup>2</sup></div>
-              <p>p<sub>k</sub> = az osztály k aránya a csomópontban; 0 = tiszta,  maximalizált Gini → kevert.</p>
-            </li>
-            <li><strong>Entrópia (Information Gain):</strong>
-              <div class="formula">H = -Σ p<sub>k</sub> log₂ p<sub>k</sub></div>
-              <div class="formula">Gain = H(parent) - Σ (N<sub>j</sub>/N) H(child<sub>j</sub>)</div>
-              <p>Az entrópia-csökkenés a felosztás minőségét méri.</p>
-            </li>
-          </ul>
-          <p class="definition"><strong>Pruning:</strong> A túltanulás elkerülése érdekében a kevés adatot tartalmazó ágak visszavágása.</p>
-          <div class="example">
-            <strong>Példa:</strong> Egy fa, amely a | Weather | és | Humidity | feature-ök alapján dönt, hogy sportoljunk-e.
-          </div>
-          <p class="definition"><strong>Random Forest:</strong> Több döntési fa bagging-gel és feature-randomizációval; végső döntés többségi szavazással.</p>
-          <p class="definition"><strong>SVM (Support Vector Machine):</strong> Hiperfelület (w<sup>T</sup>x + b = 0) keresése a margin maximalizálásával:</p>
-          <div class="formula">
-            min<sub>w,b</sub> ½‖w‖<sup>2</sup>  s.t.  y<sub>i</sub>(w<sup>T</sup>x<sub>i</sub>+b) ≥ 1
-          </div>
-          <p><strong>Kernel-trükk:</strong> Nemlineáris elválasztást lehetővé tevő φ(x) transzformáció, majd K(x,z)=φ(x)<sup>T</sup>φ(z).</p>
-          <p class="definition"><strong>KNN (k-Nearest Neighbors):</strong> Egy új pontot a k legközelebbi szomszéd (Euclidean/Manhattan/Cosine) osztályai alapján sorol.</p>
-        </section>
-        <!-- 7. hét -->
-        <section id="week7" class="content-section">
-          <h2 class="section-title">7. hét: Neurális hálózatok és mély tanulás</h2>
-          <p class="definition"><strong>Perceptron:</strong> Alap, lineáris osztályozó: y = sign(w<sup>T</sup>x + b).</p>
-          <p class="definition"><strong>Multilayer Perceptron:</strong> Több réteg lineáris + nemlineáris aktiváció (ReLU, sigmoid).</p>
-          <p class="definition"><strong>Aktivációs függvények:</strong></p>
-          <ul>
-            <li><strong>Sigmoid:</strong> σ(z)=1/(1+e<sup>-z</sup>) – saturálódik, gradiens eltűnés.</li>
-            <li><strong>ReLU:</strong> max(0,z) – gyors, kevésbé saturálódik.</li>
-            <li><strong>Softmax:</strong> e<sup>z<sub>i</sub></sup>/Σe<sup>z<sub>j</sub></sup> – többosztályos kimenet.</li>
-          </ul>
-          <p class="definition"><strong>Backpropagation:</strong> A hibát visszaterjesztjük a láncszabály segítségével, és súlyfrissítés: w ← w - η ∂L/∂w.</p>
-          <p class="definition"><strong>Optimizálók:</strong> SGD, Momentum, RMSProp, ADAM (adaptív tanulási ráták).</p>
-          <p class="definition"><strong>CNN (Convolutional Neural Network):</strong> Lokális szűrők, convolúció + pooling a képfeldolgozásban.</p>
-          <p class="definition"><strong>ResNet:</strong> Skip connection – átugró kapcsolatok a gradiens eltűnés megelőzésére.</p>
-        </section>
-        <!-- 8. hét -->
-        <section id="week8" class="content-section">
-          <h2 class="section-title">8. hét: Tömörítés és generálás</h2>
-          <p class="definition"><strong>PCA:</strong> Dimenziócsökkentés lineárisan a kovariancia-mátrix eigenvektoraira vetítve:</p>
-          <div class="formula">C = X<sup>T</sup>X;  Cv<sub>i</sub>=λ<sub>i</sub>v<sub>i</sub></div>
-          <p class="definition"><strong>AutoEncoder:</strong> Encoder–bottleneck–decoder szerkezet, loss: ‖x - x̂‖².</p>
-          <p class="definition"><strong>Variational AE:</strong> Encoder q<sub>φ</sub>(z|x)≈N(μ,σ²), ELBO: E[log pθ(x|z)] - D<sub>KL</sub>(q‖p).</p>
-          <p class="definition"><strong>GAN:</strong> Generátor G(z) vs. diszkriminátor D(x) minimax játék: min<sub>G</sub>max<sub>D</sub> Ex[logD(x)] + Ez[log(1-D(G(z)))].</p>
-          <p class="definition"><strong>Diffúziós modellek:</strong> Zajosítás és denoising lépések megtanulása iteratívan.</p>
-        </section>
-        <!-- 9. hét -->
-        <section id="week9" class="content-section">
-          <h2 class="section-title">9. hét: Idősorok, RNN, LSTM</h2>
-          <p class="definition"><strong>Idősor:</strong> Trend, szezonális komponens, zaj – időfüggő adatok.</p>
-          <p class="definition"><strong>RNN:</strong> Körkörös kapcsolat: h<sub>t</sub>=tanh(Whh h<sub>t-1</sub>+Wxh x<sub>t</sub>+b); gradiens eltűnés.</p>
-          <p class="definition"><strong>LSTM:</strong> Cell state C<sub>t</sub>, forget/input/output gate-ek:</p>
-          <div class="formula">f<sub>t</sub>=σ(W<sub>f</sub>[h<sub>t-1</sub>,x<sub>t</sub>]+b<sub>f</sub>), … etc.</div>
-        </section>
-        <!-- 10. hét -->
-        <section id="week10" class="content-section">
-          <h2 class="section-title">10. hét: NLP</h2>
-          <p class="definition"><strong>Tokenizálás:</strong> Szöveg elemi egységekre bontása.</p>
-          <p class="definition"><strong>Stemming vs. Lemmatizálás:</strong> Szabályalapú tő vs. nyelvtani kontextus.</p>
-          <p class="definition"><strong>TF-IDF:</strong> tfidf<sub>t,d</sub>=tf×log(N/df).</p>
-          <p class="definition"><strong>Word2Vec:</strong> Skip-gram vs. CBOW; GloVe: együttfordulási mátrix faktorizáció.</p>
-        </section>
-        <!-- 11. hét -->
-        <section id="week11" class="content-section">
-          <h2 class="section-title">11. hét: Attention, Transformer, LLM</h2>
-          <p class="definition"><strong>Attention:</strong> softmax(QK<sup>T</sup>/√d<sub>k</sub>)V.</p>
-          <p class="definition"><strong>Transformer blokk:</strong> Multi-head attention, Add&Norm, Feedforward, Add&Norm.</p>
-          <p class="definition"><strong>Pozíciós kódolás:</strong> sin/cos függvényekkel a sorrendi info bevitele.</p>
-          <p class="definition"><strong>LLM-ek:</strong> GPT (autoregresszív), BERT (bidirekcionális), finetuning, prompt engineering.</p>
-        </section>
-        <!-- 12. hét -->
-        <section id="week12" class="content-section">
-          <h2 class="section-title">12. hét: Reinforcement Learning</h2>
-          <p class="definition"><strong>Alapok:</strong> state, action, reward, policy.</p>
-          <p class="definition"><strong>Q-learning:</strong> Q←Q+α(r+γmaxQ - Q).</p>
-          <p class="definition"><strong>Actor-Critic:</strong> Actor=policy, Critic=value; advantage A=Q-V.</p>
-          <p class="definition"><strong>AlphaZero:</strong> Deep RL + Monte Carlo Tree Search táblajátékokhoz.</p>
-        </section>
-      </main>
-    </div>
+    <a class="navbar-brand fw-bold" href="index.html">AI Alapjai Kvíz</a>
+    <ul class="nav">
+      <li class="nav-item">
+        <a class="nav-link" href="anyag.html">Részletes jegyzet (6–12. hét)</a>
+      </li>
+    </ul>
   </div>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</nav>
+<div class="container content">
+  <!-- 6. hét -->
+  <div id="week6" class="section">
+    <h2>6. hét – Többdimenziós klasszifikáció</h2>
+    <p class="definition">Decision Tree:</p>
+    <ul>
+      <li><span class="definition">Definíció:</span> Fa-struktúra, minden csomópont egy feature mentén kettévágja az adatot.</li>
+      <li><span class="definition">Gini-index:</span> <span class="formula">Gini(t) = 1 – Σ p<sub>k</sub><sup>2</sup></span><br>
+          <span class="formula">p<sub>k</sub></span> – az adott osztály aránya a csomópontban.</li>
+      <li><span class="definition">Entrópia:</span> <span class="formula">H(t) = – Σ p<sub>k</sub> log<sub>2</sub> p<sub>k</sub></span><br>
+          <span class="definition">Információnyereség:</span> szülő entrópiájából levonjuk a súlyozott gyerek entrópiák összegét.</li>
+      <li><span class="definition">Pruning:</span> A túlméretezett ágak levágása a túltanulás megelőzésére.</li>
+    </ul>
+    <p class="definition">Random Forest:</p>
+    <ul>
+      <li><span class="definition">Bagging:</span> Több fa bootstrap mintákon, minden fa külön mintahalmazon tanul.</li>
+      <li><span class="definition">Feature-részhalmaz:</span> Minden splitnél véletlenszerű feature-alhalmaz használata.</li>
+      <li><span class="definition">Predikció:</span> Többségi szavazás (klasszifikáció) vagy átlag (regresszió).</li>
+    </ul>
+    <p class="definition">Support Vector Machine (SVM):</p>
+    <ul>
+      <li><span class="definition">Definíció:</span> Hipersík keresése, ami maximalizálja a margin-t.</li>
+      <li><span class="formula">Minimize: ½ ||w||²  s.t.  y<sub>i</sub>(wˡx<sub>i</sub> + b) ≥ 1</span></li>
+      <li><span class="definition">Kernel-trükk:</span> Nemlineáris adatok esetén φ(x)-t használunk és K(x,z)=φ(x)·φ(z).</li>
+    </ul>
+    <p class="definition">k-Nearest Neighbors (KNN):</p>
+    <ul>
+      <li><span class="definition">Működés:</span> Új pontot a k legközelebbi címke dönti el.</li>
+      <li><span class="definition">Távolságmérők:</span> Euclidean, Manhattan, Cosine.</li>
+      <li><span class="definition">Fontos:</span> Feature skálázás elengedhetetlen (standardizálás, min–max).</li>
+    </ul>
+  </div>
+  <!-- 7. hét -->
+  <div id="week7" class="section">
+    <h2>7. hét – Neurális hálózatok és mély tanulás</h2>
+    <p class="definition">Perceptron:</p>
+    <ul>
+      <li><span class="formula">y = sgn(wˡx + b)</span> – kimenet +1 vagy –1.</li>
+      <li><span class="definition">Tanulás:</span> w ← w + η(y<sub>true</sub> – y<sub>pred</sub>) x.</li>
+    </ul>
+    <p class="definition">Aktivációs függvények:</p>
+    <ul>
+      <li><span class="definition">Sigmoid:</span> σ(z)=1/(1+e<sup>–z</sup>) (gradiens eltűnés).</li>
+      <li><span class="definition">Tanh:</span> (e<sup>z</sup>− e<sup>–z</sup>)/(e<sup>z</sup>+ e<sup>–z</sup>).</li>
+      <li><span class="definition">ReLU:</span> max(0,z) (dead neuron probléma).</li>
+      <li><span class="definition">Softmax:</span> e<sup>z<sub>i</sub></sup>/Σ e<sup>z<sub>j</sub></sup> – valószínűségi kimenet.</li>
+    </ul>
+    <p class="definition">Backpropagation és optimalizálók:</p>
+    <ul>
+      <li><span class="definition">Loss:</span> Cross-entropy (klasszifikáció), MSE (regresszió).</li>
+      <li><span class="definition">Gradiensleszállás:</span> w ← w − η ∂L/∂w.</li>
+      <li><span class="definition">Optimizers:</span> SGD, Momentum, RMSProp, Adam.</li>
+    </ul>
+    <p class="definition">Speciális rétegek:</p>
+    <ul>
+      <li><span class="definition">Conv Layer:</span> Lokális szűrők, feature mapek képzésére.</li>
+      <li><span class="definition">Pooling:</span> Max/avg dimenziócsökkentés.</li>
+      <li><span class="definition">BatchNorm:</span> Aktivációk normalizálása.</li>
+      <li><span class="definition">Dropout:</span> Véletlenszerű neuron-kikapcsolás a túltanulás ellen.</li>
+    </ul>
+  </div>
+  <!-- 8. hét -->
+  <div id="week8" class="section">
+    <h2>8. hét – Tömörítés és generálás (PCA, AutoEncoder, GAN)</h2>
+    <p class="definition">PCA:</p>
+    <ul>
+      <li><span class="definition">Kovariancia-mátrix:</span> C=1/N XᵀX.</li>
+      <li><span class="definition">Eigen-dekompozíció:</span> C v<sub>i</sub>=λ<sub>i</sub>v<sub>i</sub>.</li>
+      <li><span class="definition">Főkomponensek:</span> λ rendezve, vektorok variancia szerint.</li>
+    </ul>
+    <p class="definition">AutoEncoder:</p>
+    <ul>
+      <li>Encoder: x→z, Decoder: z→x̂.</li>
+      <li><span class="formula">Loss: ||x−x̂||².</span></li>
+      <li><span class="definition">Bottleneck:</span> Rejtett neuronszám kisebb, mint bemenet.</li>
+    </ul>
+    <p class="definition">Variational AE:</p>
+    <ul>
+      <li>Encoder q<sub>φ</sub>(z|x)=N(μ,σ²)</li>
+      <li>ELBO: E<sub>q</sub>[log p(x|z)]−D<sub>KL</sub>(q||p(z)).</li>
+    </ul>
+    <p class="definition">GAN:</p>
+    <ul>
+      <li>Generátor G(z), diszkriminátor D(x).</li>
+      <li><span class="formula">min_G max_D E[log D(x)] + E[log (1–D(G(z)))].</span></li>
+      <li><span class="definition">Mode collapse:</span> kevésféle minta generálása.</li>
+    </ul>
+    <p class="definition">Diffúziós modellek:</p>
+    <ul>
+      <li>Zajosítás + denoising iterációs megtanulása.</li>
+    </ul>
+  </div>
+  <!-- 9. hét -->
+  <div id="week9" class="section">
+    <h2>9. hét – Idősorok, RNN, LSTM</h2>
+    <p class="definition">Idősoros komponensek:</p>
+    <ul>
+      <li><span class="definition">Trend:</span> Hosszú távú irány.</li>
+      <li><span class="definition">Szezonális:</span> Periodikus ingadozások.</li>
+      <li><span class="definition">Zaj:</span> Véletlenszerű eltérések.</li>
+    </ul>
+    <p class="definition">RNN:</p>
+    <ul>
+      <li><span class="formula">h_t = tanh(W_hh h_{t-1} + W_xh x_t + b).</span></li>
+      <li><span class="definition">Probléma:</span> Gradiens eltűnés/probléma hosszú szekvencián.</li>
+    </ul>
+    <p class="definition">LSTM:</p>
+    <ul>
+      <li>Forget gate f_t, input gate i_t, candidate \tildeC_t, output gate o_t.</li>
+      <li><span class="formula">C_t = f_t ∘ C_{t-1} + i_t ∘ \tildeC_t, h_t = o_t ∘ tanh(C_t).</span></li>
+    </ul>
+  </div>
+  <!-- 10. hét -->
+  <div id="week10" class="section">
+    <h2>10. hét – NLP</h2>
+    <p class="definition">Előfeldolgozás:</p>
+    <ul>
+      <li>Tokenizálás, stop-word eltávolítás, stemming, lemmatizálás.</li>
+    </ul>
+    <p class="definition">Szöveg reprezentáció:</p>
+    <ul>
+      <li>Bag-of-Words, TF-IDF: tfidf_{t,d}=tf_{t,d} log(N/df_t).</li>
+    </ul>
+    <p class="definition">Embeddings:</p>
+    <ul>
+      <li>One-hot, Word2Vec (skip-gram, CBOW), GloVe.</li>
+    </ul>
+    <p class="definition">Feladatok:</p>
+    <ul>
+      <li>NER, POS tagging, sentiment analysis, fordítás, összefoglalás.</li>
+    </ul>
+  </div>
+  <!-- 11. hét -->
+  <div id="week11" class="section">
+    <h2>11. hét – Attention és Transformer</h2>
+    <p class="definition">Attention:</p>
+    <ul>
+      <li><span class="formula">Attention(Q,K,V)=softmax(QK^T/√d_k)V.</span></li>
+      <li>Query, Key, Value mátrixok leképezése.</li>
+    </ul>
+    <p class="definition">Transformer blokk:</p>
+    <ul>
+      <li>Multi-head attention, Add & Norm, Feedforward, Add & Norm.</li>
+    </ul>
+    <p class="definition">Pozíciós kódolás:</p>
+    <ul>
+      <li>Szinusz–koszinusz formulák a sorrend beépítéséhez.</li>
+    </ul>
+  </div>
+  <!-- 12. hét -->
+  <div id="week12" class="section">
+    <h2>12. hét – Reinforcement Learning</h2>
+    <p class="definition">Alapok:</p>
+    <ul>
+      <li>State s, Action a, Reward r, Policy 📋 π(a|s).</li>
+    </ul>
+    <p class="definition">Value és Q-value:</p>
+    <ul>
+      <li><span class="formula">V^π(s)=E[Σγ^t r_t], Q^π(s,a)=E[Σγ^t r_t|a].</span></li>
+    </ul>
+    <p class="definition">Q-learning:</p>
+    <ul>
+      <li><span class="formula">Q←Q+α(r+γ maxQ–Q).</span></li>
+    </ul>
+    <p class="definition">Actor-Critic:</p>
+    <ul>
+      <li>Actor: π_θ(a|s), Critic: V_w(s), Advantage=A(s,a)=Q–V.</li>
+    </ul>
+  </div>
+</div>
 </body>
 </html>
