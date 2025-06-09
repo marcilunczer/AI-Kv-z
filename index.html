@@ -127,7 +127,7 @@
     function startQuiz() {
       const weeks = getSelectedWeeks();
       if (!weeks.length) { alert('Legalább egy hetet válassz!'); return; }
-      const pool = questions.filter(q => weeks.includes(q['Hét']));
+      const pool = questions; 
       if (pool.length < NUM_QUESTIONS) {
         alert(`Csak ${pool.length} kérdés van a kiválasztott heteken. Válassz több hetet vagy csökkentsd a kérdésszámot.`);
         return;
