@@ -136,29 +136,26 @@
       renderQuestions();
     }
 
-    function renderQuestions() {
-      const container = document.getElementById('quiz-container'); container.innerHTML = '';
-      answeredCount = 0; document.getElementById('result').textContent = '';
-      document.getElementById('submit-btn').disabled = true; updateProgress();
+    function renderQuestions(questions) {
+  const container = document.getElementById("questions-container");
+  container.innerHTML = "";
 
-      selected.forEach((q, idx) => {
-        const cols = ['Válasz A','Válasz B','Válasz C','Válasz D'];
-        let entries = cols.map((col,i) => ({ text: (q[col]||'').trim(), correct: (q['Helyes válasz']||'').trim().toUpperCase()===String.fromCharCode(65+i) }));
-        entries = shuffle(entries);
-        const groupId = 'group-'+idx;
-        const card = document.createElement('div'); card.className='card';
-        card.innerHTML = `
-          <div class="card-body">
-            <h5 class="card-title fw-semibold">${idx+1}. ${q['Kérdés']}</h5>
-            <div id="${groupId}" class="d-grid gap-2 mt-3" data-correct="false">
-              ${entries.map((opt,i)=>`<button class=\"btn btn-outline-secondary option\" data-correct=\"${opt.correct}\">${String.fromCharCode(65+i)}) ${opt.text}</button>`).join('')}
-            </div>
-          </div>`;
-        container.appendChild(card);
-      });
-      document.querySelectorAll('.option').forEach(btn=>btn.addEventListener('click',()=>onAnswer(btn)));
-      document.getElementById('submit-btn').onclick = showScore;
-    }
+  questions.forEach((q, i) => {
+    const card = document.createElement("div");
+    card.className = "question-card";
+    card.innerHTML = `
+      <h3>${i+1}. ${q["Kérdés"]}</h3>
+      <div class="options">
+        ${["A", "B", "C", "D"].map(letter =>
+          `<button class="option">
+             ${letter}) ${q[letter]}
+           </button>`
+        ).join("")}
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
 
     function onAnswer(btn) {
       if (btn.disabled) return;
