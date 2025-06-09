@@ -138,25 +138,38 @@
 
     function renderQuestions(questions) {
       const container = document.getElementById("questions-container");
-      container.innerHTML = "";
+      container.innerHTML = "";    // clear out old quiz
     
       questions.forEach((q, i) => {
-        const card = document.createElement("div");
-        card.className = "question-card";
+        const groupId     = `group-${i}`;
+        const correctAns  = (q["Helyes"] || "").trim();
+        const card        = document.createElement("div");
+        card.className    = "question-card";
+        card.id           = groupId;
+    
+        // Build the inner HTML in one go:
         card.innerHTML = `
-          <h3>${i+1}. ${q["Kérdés"]}</h3>
+          <h3>${i + 1}. ${q["Kérdés"]}</h3>
           <div class="options">
-            ${["A", "B", "C", "D"].map(letter =>
-              `<button class="option">
-                 ${letter}) ${q[letter]}
-               </button>`
-            ).join("")}
+            ${["A","B","C","D"].map(letter => {
+              // if your headers have trailing spaces or diacritics, adjust letter lookup!
+              const text = q[letter] || "";
+              const isCorrect = letter === correctAns;
+              return `
+                <button
+                  class="option btn btn-outline-secondary"
+                  data-correct="${isCorrect}"
+                  onclick="onAnswer(this)"
+                >
+                  ${letter}) ${text}
+                </button>
+              `;
+            }).join("")}
           </div>
         `;
         container.appendChild(card);
       });
     }
-
     function onAnswer(btn) {
       if (btn.disabled) return;
       const grp = btn.parentElement; const ok = btn.getAttribute('data-correct')==='true';
