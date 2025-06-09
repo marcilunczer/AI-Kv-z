@@ -1,7 +1,7 @@
 import csv
 import random
 
-CSV_FILENAME = "ai_teszt_350_kerdes.csv"  # A letöltött CSV fájl neve
+CSV_FILENAME = "mi_kviz_teljes_12het_220kerdes.csv"  # A letöltött CSV fájl neve
 
 def load_questions(csv_filename):
     """
