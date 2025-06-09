@@ -137,25 +137,25 @@
     }
 
     function renderQuestions(questions) {
-  const container = document.getElementById("questions-container");
-  container.innerHTML = "";
-
-  questions.forEach((q, i) => {
-    const card = document.createElement("div");
-    card.className = "question-card";
-    card.innerHTML = `
-      <h3>${i+1}. ${q["Kérdés"]}</h3>
-      <div class="options">
-        ${["A", "B", "C", "D"].map(letter =>
-          `<button class="option">
-             ${letter}) ${q[letter]}
-           </button>`
-        ).join("")}
-      </div>
-    `;
-    container.appendChild(card);
-  });
-}
+      const container = document.getElementById("questions-container");
+      container.innerHTML = "";
+    
+      questions.forEach((q, i) => {
+        const card = document.createElement("div");
+        card.className = "question-card";
+        card.innerHTML = `
+          <h3>${i+1}. ${q["Kérdés"]}</h3>
+          <div class="options">
+            ${["A", "B", "C", "D"].map(letter =>
+              `<button class="option">
+                 ${letter}) ${q[letter]}
+               </button>`
+            ).join("")}
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
 
     function onAnswer(btn) {
       if (btn.disabled) return;
