@@ -1,4 +1,4 @@
-Hét;Téma;Kérdés;Válasz A;Válasz B;Válasz C;Válasz D;Helyes válasz
+ID;Téma;Kérdés;A;B;C;D;Helyes
 2;Bevezetés;"Mit jelent a ""feature selection"" a képfeldolgozásban?";Az eredményt legjobban befolyásoló tulajdonságok kiválasztása;A kategória változók konvertálása numerikussá;A tulajdonságok véletlenszerű kiválasztása a modellezéshez;A kategória változok konvertálása bináris változókká;B
 2;Bevezetés;Mi az d n-gram a természetes nyelvi feldolgozásban?;n dokumentumban lévő szóegyezések;n darab azonos szó egy szövegben;n egységből álló szekvencia egy szövegben;n elem vektor a természetes nyelvi feldolgozásban;C
 2;Bevezetés;Az SVM módszernél milyen eloszlást feltételezünk a bemenő adatok esetén?;Binomiális eloszlást feltételezünk;Normális eloszlást feltételezünk.;Egyenletes eloszlást feltételezünk;Nem feltételezünk semmilyen eloszlást;B
