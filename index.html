@@ -2,185 +2,184 @@
 <html lang="hu">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>AI Alapjai Kvíz</title>
-  <link rel="manifest" href="./manifest.json">
-  <meta name="theme-color" content="#0d6efd">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Igaz/Hamis Kvíz</title>
   <style>
-    body { padding-top: 56px; background-color: #f8f9fa; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; }
-    .navbar { box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-    .card { border-radius: 1rem; box-shadow: 0 4px 8px rgba(0,0,0,0.05); margin-bottom: 1rem; }
-    .option { border-radius: .5rem; margin-bottom: .5rem; font-size: 1rem; }
-    .btn-success { color: #fff !important; }
-    .btn-danger { color: #fff !important; }
-    .progress { height: 1rem; margin-bottom: 1.5rem; }
-    #submit-btn, #restart-btn, #restart-top { width: 100%; }
-    #restart-top { width: auto; margin-left: .5rem; }
-    .week-checkbox { margin-right: .75rem; }
-    @media (max-width: 576px) {
-      .card-body { padding: 1rem; }
-      .option { font-size: .9rem; padding: .75rem; }
-      .week-checkbox { width: 48%; margin-bottom: .5rem; }
-      #restart-top { margin-top: .5rem; }
-    }
+    body { font-family: Arial, sans-serif; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+    h1 { text-align: center; }
+    .info { text-align: center; margin-bottom: 1rem; }
+    .question { margin-bottom: 1.5rem; padding: 1rem; border: 1px solid #ddd; border-radius: 5px; }
+    .answers button { margin-right: 1rem; }
+    .correct { color: green; font-weight: bold; }
+    .incorrect { color: red; font-weight: bold; }
+    #restart { display: block; margin: 2rem auto; padding: 0.5rem 1rem; font-size: 1rem; }
+    #result { text-align: center; font-size: 1.2rem; margin-top: 1.5rem; }
   </style>
 </head>
 <body>
-  <nav class="navbar navbar-light bg-white fixed-top">
-    <div class="container-fluid">
-      <a class="navbar-brand fw-bold" href="index.html">AI Alapjai Kvíz</a>
-      <ul class="nav">
-        <li class="nav-item">
-          <a class="nav-link" href="anyag.html">Részletes jegyzet (6–12. hét)</a>
-        </li>
-      </ul>
-    </div>
-  </nav>
-
-  <div class="container py-4">
-    <!-- Előre beállítások és hét választó -->
-    <div class="mb-3 d-flex align-items-center flex-wrap">
-      <label class="form-label me-2 mb-0">Előre beállítás:</label>
-      <select id="preset-select" class="form-select form-select-sm w-auto mb-2">
-        <option value="all" selected>Mind</option>
-        <option value="q1">Első negyedév (2-5. hét)</option>
-        <option value="q2">Második negyedév (6-12. hét)</option>
-        <option value="custom">Egyéni</option>
-      </select>
-      <button id="restart-top" class="btn btn-secondary btn-sm mb-2">Újrakezdés</button>
-    </div>
-    <div class="mb-3">
-      <label class="form-label d-block">Hét kiválasztása:</label>
-      <div id="week-container" class="d-flex flex-wrap">
-        <!-- Checkboxok ide generálódnak -->
-      </div>
-    </div>
-
-    <div class="progress" role="progressbar" aria-label="Előrehaladás">
-      <div class="progress-bar bg-primary" style="width: 0%;"></div>
-    </div>
-    <div id="quiz-container"></div>
-    <div class="d-grid gap-2 mt-4">
-      <button id="submit-btn" class="btn btn-primary btn-lg" disabled>Pontszám Kiértékelése</button>
-      <button id="restart-btn" class="btn btn-secondary btn-lg">Újrakezdés</button>
-    </div>
-    <div id="result" class="mt-4 text-center fs-4"></div>
+  <h1>Igaz/Hamis Kvíz</h1>
+  <div class="info">
+    <p>Összes kérdés: <span id="total"></span></p>
   </div>
+  <div id="quiz"></div>
+  <button id="restart">Új kvíz</button>
+  <div id="result"></div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
   <script>
-    const CSV_URL = 'mi_kviz_teljes_12het_220kerdes.csv';
-    const NUM_QUESTIONS = 20;
-    let questions = [], selected = [], answeredCount = 0;
+ const allQuestions = [
+  { q: 'A háttértelevíziózás ma már egyáltalán nem jellemző', a: false },
+  { q: 'A közönség mint piac úgy határozható meg, mint a médiajavak és szolgáltatások valóságos és potenciális, ismert társadalmi-gazdasági jellemzőkkel bíró vásárlóinak összessége', a: true },
+  { q: 'Az újságírás a 20. században volt jellemző műfaj, ma már nincs semmilyen funkciója', a: false },
+  { q: 'A digitális platformok és a hagyományos médiavállalatok közötti viszony a frenemy kifejezéssel írható le', a: true },
+  { q: 'A SVOD üzleti modell nem terjedt el a digitális médiában', a: false },
+  { q: 'Az Amerikai Egyesült Államokban a digitális műholdas rádió platformok a fizető rádiózás üzleti modelljét követik', a: true },
+  { q: 'Az OTT a streaming szolgáltatások közé tartozik', a: true },
+  { q: 'A televíziózásban az ún. duális modell az amerikai piacon volt jellemző hetvenes-nyolcvanas években', a: false },
+  { q: 'A sokcsatornás televíziózás egyik jellemzője a tematikus csatornák megjelenése', a: true },
+  { q: 'Az IPTV mára kiszorította a piacról a műholdas televíziózást', a: false },
+  { q: 'A fogyasztás árrugalmassága a médiapiacon az 1970-es évek óta egyértelműen bizonyított', a: false },
+  { q: 'A médiaiparban érvényesül a választékgazdaságosság', a: true },
+  { q: 'A hagyományos és a digitális média ökoszisztémája egyáltalán nem tér el egymástól, csak más a terjesztési technológia', a: false },
+  { q: 'Az online tartalomszolgáltatás üzleti modelljére nem igaz a kétoldalú piac elmélet', a: false },
+  { q: 'A rádiózás fejlődésének amerikai útjában jóval kisebb volt az állam szerepe, mint Európában', a: true },
+  { q: 'Az interaktív televíziózás szolgáltatások alapjaiban változtatták meg a tévénézési szokásokat', a: false },
+  { q: 'A közszolgálati műsorszolgáltatás alapelvei közé tartozik a függetlenség', a: true },
+  { q: 'Az ezer lakosra jutó eladott napilapok számát tekintve nincs jelentős különbség az Európai Unió országaiban', a: false },
+  { q: 'Az újságkiadás bevételi szerkezetében a fogyasztóktól származó terjesztési bevételek mindig is jóval meghaladták a hirdetési bevételeket', a: false },
+  { q: 'A szociodemográfiai és gazdasági tényezőknek nincs lényegi szerepe a médiatermékek fogyasztásának alakulásában', a: false },
+  { q: 'A DAB a digitális rádiós műsorszórás egy szabványa', a: true },
+  { q: 'Az értéklánc különböző elemeinek tulajdonosi összekapcsolódását horizontális integrációnak nevezzük', a: false },
+  { q: 'A hosszú farok elmélet alapállítása, hogy rétegtermékek mindig is léteztek, de a digitális technológiának köszönhetően ezek terjesztési költsége jelentősen csökkent', a: true },
+  { q: 'A médiatermékek egyik sajátossága, hogy az első példány költsége kiugróan magas', a: true },
+  { q: 'Minden médiatermékre és médiaszolgáltatásra a kettős piacmodell jellemző', a: false },
+  { q: 'A televíziós műsorterjesztés digitalizálása nem volt érdemi hatással a televíziós piacra', a: false },
+  { q: 'A médiában egyaránt jellemző a horizontális, vertikális és diagonális integráció', a: true },
+  { q: 'A médiatermékek egyik jellegzetessége az alacsony határköltség', a: true },
+  { q: 'A médiatermék kettős piaca azt jelenti, hogy ha egy jó televízióműsornak híre megy, akkor sokan megnézik az ismétlést', a: false },
+  { q: 'A konvergencia egyik értelmezése az új, integrált szabályozó hatóságok kialakulása', a: true },
+  { q: 'A közszolgálati televíziózás lényege, hogy nem sugározhat hirdetéseket', a: false },
+  { q: 'A társadalmi státusz befolyásolja az újságok keresletét', a: true },
+  { q: 'A lappiacon a hirdetési bevételek jellemzően elenyészőek a lapértékesítésből származó bevételekhez képest', a: false },
+  { q: 'A szociodemográfiai és gazdasági tényezőknek nagy szerepe van a médiatermékek fogyasztásának alakulásában', a: true },
+  { q: 'A nagyközönség piacán a médiafogyasztás jövedelemrugalmatlansága az 1970-es évek óta egyértelműen bizonyított', a: false },
+  { q: 'A nagy forgalomirányító oldalak a hirdetési bevételek egyre nagyobb arányát szerzik meg', a: true },
+  { q: 'A Web 2.0 szolgáltatások nagyban építenek a fogyasztó által előállított tartalomra', a: true },
+  { q: 'Mind az USA-ban, mind Európában a televíziózás fejlődése lényegében követte a rádiózásban kialakult modelleket', a: true },
+  { q: 'A médiaiparban érvényesül a választékgazdaságosság', a: true },
+  { q: 'A nagy forgalomirányító oldalak a hirdetési bevételek egyre nagyobb arányát szerzik meg, veszélybe sodorva ezzel a médiavállalatok üzleti modelljét', a: true },
+  { q: 'A Web 2.0 szolgáltatások nagyban építenek a fogyasztó által előállított tartalomra', a: true },
+  { q: 'Mind az USA-ban, mind pedig Európában a televíziózás fejlődése lényegében követte a rádiózásban kialakult modelleket', a: true },
+  { q: 'A „format” típusú (szakosodott műsorszerkezetű) rádiózás általános jelenség az érett rádiópiacokon', a: true },
+  { q: 'Az OTT (over the top television) a hagyományos televíziózás műsorszolgáltatók lekérhető (on-demand) szolgáltatása', a: false },
+  { q: 'A sokcsatornás televíziózásban a szolgáltatás magánjószág jellegű', a: true },
+  { q: 'A streaming technológiák kiszorítottak minden korábbi televíziós műsorterjesztési technológiát', a: false },
+  { q: 'Az informercial kifejezés a tájékoztató és szórakoztató funkciók keveredésére utal a médiában', a: false },
+  { q: 'Az újságírás egyik fontos szerepe a közhatalom ellenőrzése, a „watchdog” funkció', a: true },
+  { q: 'A binge-watching („filmdarálás”) a digitális műholdas technológia megjelenésekor alakult ki', a: false },
+  { q: 'Magyarországon a televíziós műsorterjesztési piac digitalizálása a következő évtizedben várható', a: false },
+  { q: 'A diagonális integráció egyáltalán nem jellemző a médiában', a: false },
+  { q: 'A filléres szakadék (penny gap) modell azt mondja, hogy az ingyenes és fizetős termékek között jelentős keresleti különbség van, bármennyire is alacsony az ár', a: true },
+  { q: 'A médiatermékek esetében az első példány költsége és a további példányok előállítási költsége (határköltsége) között nincs érdemi különbség', a: false },
+  { q: 'A konvergencia kizárólag a vállalatok szervezeti dimenziójában érvényesül', a: false },
+  { q: 'A közszolgálati műsorszolgáltatás alapelvei közé tartozik az objektív, páratlan tájékoztatás', a: true },
+  { q: 'A nyomtatott lapok olvasottságában a fejlett országokban voltak ugyan kisebb-nagyobb hullámok, de az elmúlt évtizedeket tekintve stabilitást mutatnak az adatok', a: false },
+  { q: 'A hirdetők esetében éppúgy jellemző a termelőkkel szembeni információs aszimmetria, mint a nagyközönség és a médiavállalatok kapcsán', a: false },
+  { q: 'A nagyközönség piacán a médiafogyasztás jövedelemrugalmas', a: true },
+  { q: 'A médiaiparban érvényesül a méretgazdaságosság', a: true },
+  { q: 'A fogyasztó által előállított tartalom (user generated content) fontos szerepet tölt be a Web 2.0 szolgáltatások piacán', a: true },
+  { q: 'A fejlett országokban a hagyományos rádiózás teljesen visszaszorult, a streaming zenei szolgáltatások lényegében megszüntették ezt a piacot', a: false },
+  { q: 'Az európai uniós és a magyarországi szabályozásban is az audiovizuális médiaszolgáltatás része a lekérhető (on demand) szolgáltatás', a: true },
+  { q: 'A duális televíziós modell azt jelenti, hogy a hazai és külföldi csatornák is elérhetők a piacon', a: false },
+  { q: 'A sokcsatornás televíziózás a digitális műsorterjesztés általánossá válásával valósult meg', a: false },
+  { q: 'A tévénézési szokásokat egyáltalán nem befolyásolja a technológiai fejlődés', a: false },
+  { q: 'A tömegkommunikáció funkciói közül a tájékoztatás, a szórakoztatás, a rábeszélő és a kultúraközvetítő funkciók a legfontosabbak', a: true },
+  { q: 'A multitasking két vagy több tevékenység adott idő alatt történő párhuzamos végzését jelenti', a: true },
+  { q: 'A streaming szolgáltatások piacán az eseményalapú VOD fizetési modell terjedt el', a: false },
+  { q: 'A filléres szakadék (penny gap) modell azt mondja, a médiafogyasztók jövedelmi helyzete között kis különbségek vannak', a: false },
+  { q: 'A médiatermékek egyik jellegzetessége a magas határköltség', a: false },
+  { q: 'A médiatermékek kettős/kétoldalú piaca azt jelenti, a nagyközönség piac és a hirdetők piac is vevőnek tekinthető', a: true },
+  { q: 'Közszolgálati műsorszolgáltatás ma már nem jellemző sehol a világon, ez a múlt század közepének televíziós modellje volt', a: false },
+  { q: 'A társadalmi-gazdasági változók nagyban befolyásolják a lapolvasási szokásokat', a: true },
+  { q: 'Az amerikai rádiózás és televíziós piac egyik jellemzője a hálózatosodás', a: true },
+  { q: 'A fejlett országokban a televízió nézését ma már elsősorban műszeres technológiával mérik', a: true },
+  { q: 'Az infotainment kifejezés a tájékoztató és szórakoztató funkciók keveredésére utal a médiában', a: true },
+  { q: 'A freemium modell a digitális médiában lényegében vegyes modell, az ingyenes tartalmak mellett az előfizetők extra tartalmakhoz is hozzájutnak', a: true },
+  { q: 'A konvergencia egyik értelmezése a fogyasztói felületek/eszközök konvergálása', a: true },
+  { q: 'A lappiacon a cím a marketingben használatos márka rokonfogalma', a: true },
+  { q: 'A választékgazdaságosság azt jelenti, hogy a termelt mennyiség növelésével az állandó költségek egyre nagyobb darabszámú termék között oszlanak meg, így az egy termékre jutó állandó költség folyamatosan csökken', a: false },
+  { q: 'A digitális médiában a hagyományos értéklánc helyett inkább a komplex ökoszisztéma írja le az iparági szereplők kapcsolatrendszerét', a: true },
+  { q: 'A duális televíziós modellen már túllépett az idő, de ez egy fontos állomás volt a televíziózás 20. századi fejlődésében', a: true },
+  { q: 'Az infomercial szakkifejezés a tájékoztató és a rábeszélő (reklám) funkciók keveredésére utal a médiában', a: true },
+  { q: 'Az infomercial kifejezés a tájékoztató és a szórakoztató funkciók keveredésére utal a médiában', a: false },
+  { q: 'Az oknyomozó újságírás finanszírozásában megjelent a nonprofit modell', a: true },
+  { q: 'Az 1990-es években lényegében végbement a földfelszíni, a kábeles és műholdas televíziós műsorterjesztés digitalizálása és ennek köszönhetően nőtt a műsorterjesztési kapacitás', a: true },
+  { q: 'Az értéklánc azonos elemeinek tulajdonosi összekapcsolódását horizontális integrációnak nevezzük', a: true },
+  { q: 'A média-kereszttulajdonlás lényegében azt jelenti, hogy egy vállalat több médiaszektorban is jelen van', a: true },
+  { q: 'A médiatermékek kettős/kétoldalú piaca azt jelenti, hogy alapvetően elválik egymástól a tartalom előállítása, illetve a terjesztés', a: false },
+  { q: 'A konvergencia a médiagazdaságtanban lényegében a média, a távközlés és az informatika összeolvadása', a: true },
+  { q: 'A kutatások szerint az újságok egyik versenyelőnye az olvasók részéről megnyilvánuló bizalom', a: true },
+  { q: 'A helyi újságpiacokon gyakran alakul ki monopólium', a: true },
+  { q: 'A rádiós piac európai és amerikai fejlődése ugyanazt az utat követte', a: false },
+  { q: 'Magyarországon az audiovizuális piac szabályozásának már része a lekérhető (on demand) tartalmak piaca is', a: true },
+  { q: 'A duális televíziós modell a kereskedelmi és állami/közszolgálati modell elegyét jelenti', a: true },
+  { q: 'A kábelellátottság az európai országokban többé-kevésbé egyforma, mindenhol ez a fő műsorterjesztési platform', a: false },
+  { q: 'A „hátradőlős képernyő” (lean-back media) lényege, hogy a néző ingyen kapja a műsort: csak hátra kell dőlnie és élveznie kell', a: false },
+  { q: 'Az oknyomozó újságírás finanszírozása a mai médiakörnyezetben bizonytalan, egyelőre nem látszódik a fenntartható üzleti modell', a: true },
+  { q: 'A svájci bicska dilemma azt mondja, hogy az infokommunikációs szektor konvergens, multifunkcionális eszközei bizonyos helyzetekben nagyon hasznosak, de nem szorítják ki az eredeti eszközöket', a: true }
+];
 
-    document.addEventListener('DOMContentLoaded', () => {
-      loadCSV();
-      document.getElementById('restart-btn').addEventListener('click', startQuiz);
-      document.getElementById('restart-top').addEventListener('click', startQuiz);
-      document.getElementById('preset-select').addEventListener('change', () => {
-        applyPreset();
-        startQuiz();
-      });
-    });
+    document.getElementById('total').textContent = allQuestions.length;
+    let score = 0;
+    let answered = 0;
 
-    function loadCSV() {
-      Papa.parse(CSV_URL, { download: true, header: true, complete: (res) => {
-        questions = res.data.filter(q => q['Kérdés']);
-        populateWeekCheckboxes();
-        applyPreset();
-        startQuiz();
-      }});
-    }
-
-    function populateWeekCheckboxes() {
-      const container = document.getElementById('week-container');
-      const weeks = Array.from(new Set(questions.map(q => q['Hét']))).sort((a,b) => Number(a)-Number(b));
-      weeks.forEach(week => {
-        const div = document.createElement('div');
-        div.className = 'form-check week-checkbox';
-        div.innerHTML = `
-          <input class="form-check-input week-cb" type="checkbox" value="${week}" id="week-${week}">
-          <label class="form-check-label" for="week-${week}">${week}. hét</label>
-        `;
-        container.appendChild(div);
-      });
-    }
-
-    function applyPreset() {
-      const preset = document.getElementById('preset-select').value;
-      document.querySelectorAll('.week-cb').forEach(cb => {
-        const w = Number(cb.value);
-        cb.checked = (preset === 'all')
-          || (preset === 'q1' && w >= 2 && w <= 5)
-          || (preset === 'q2' && w >= 6 && w <= 12);
-        if (preset === 'custom') cb.checked = false;
-      });
-    }
-
-    function getSelectedWeeks() {
-      return Array.from(document.querySelectorAll('.week-cb'))
-        .filter(cb => cb.checked)
-        .map(cb => cb.value);
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
     }
 
     function startQuiz() {
-      const weeks = getSelectedWeeks();
-      if (!weeks.length) { alert('Legalább egy hetet válassz!'); return; }
-      const pool = questions; 
-      if (pool.length < NUM_QUESTIONS) {
-        alert(`Csak ${pool.length} kérdés van a kiválasztott heteken. Válassz több hetet vagy csökkentsd a kérdésszámot.`);
-        return;
-      }
-      selected = shuffle(pool).slice(0, NUM_QUESTIONS);
-      renderQuestions();
-    }
+      const quizEl = document.getElementById('quiz');
+      quizEl.innerHTML = '';
+      document.getElementById('result').innerHTML = '';
+      score = 0;
+      answered = 0;
 
-    function renderQuestions(questions) {
-      const container = document.getElementById("questions-container");
-      container.innerHTML = "";    // clear out old quiz
-    
-      questions.forEach((q, i) => {
-        const groupId     = `group-${i}`;
-        const correctAns  = (q["Helyes"] || "").trim();
-        const card        = document.createElement("div");
-        card.className    = "question-card";
-        card.id           = groupId;
-    
-        // Build the inner HTML in one go:
-        card.innerHTML = `
-          <h3>${i + 1}. ${q["Kérdés"]}</h3>
-          <div class="options">
-            ${["A","B","C","D"].map(letter => {
-              // if your headers have trailing spaces or diacritics, adjust letter lookup!
-              const text = q[letter] || "";
-              const isCorrect = letter === correctAns;
-              return `
-                <button
-                  class="option btn btn-outline-secondary"
-                  data-correct="${isCorrect}"
-                  onclick="onAnswer(this)"
-                >
-                  ${letter}) ${text}
-                </button>
-              `;
-            }).join("")}
-          </div>
-        `;
-        container.appendChild(card);
+      const copy = [...allQuestions];
+      shuffle(copy);
+      const selected = copy.slice(0, 20);
+      selected.forEach((item, idx) => {
+        const div = document.createElement('div');
+        div.className = 'question';
+        div.innerHTML = `<p><strong>${idx+1}. ${item.q}</strong></p>`;
+        const ansDiv = document.createElement('div');
+        ansDiv.className = 'answers';
+        ['Igaz', 'Hamis'].forEach(text => {
+          const btn = document.createElement('button');
+          btn.textContent = text;
+          btn.onclick = () => {
+            const isTrue = text === 'Igaz';
+            if (isTrue === item.a) score++;
+            answered++;
+            const span = document.createElement('span');
+            span.textContent = isTrue === item.a ? ' ✔️' : ' ❌';
+            span.className = isTrue === item.a ? 'correct' : 'incorrect';
+            ansDiv.appendChild(span);
+            ansDiv.querySelectorAll('button').forEach(b => b.disabled = true);
+            if (answered === selected.length) {
+              document.getElementById('result').innerHTML = `<p>Elért pontszám: ${score} / ${selected.length}</p>`;
+            }
+          };
+          ansDiv.appendChild(btn);
+        });
+        div.appendChild(ansDiv);
+        quizEl.appendChild(div);
       });
     }
-    function onAnswer(btn) {
-      if (btn.disabled) return;
-      const grp = btn.parentElement; const ok = btn.getAttribute('data-correct')==='true';
-      grp.dataset.correct = ok; btn.classList.replace('btn-outline-secondary', ok?'btn-success':'btn-danger');
-      if (!ok) { const cb = Array.from(grp.children).find(b=>b.getAttribute('data-correct')==='true'); if(cb)cb.classList.replace('btn-outline-secondary','btn-success'); }
-      grp.querySelectorAll('button').forEach(b=>b.disabled=true); answeredCount++; updateProgress();
-      if(answeredCount===NUM_QUESTIONS)document.getElementById('submit-btn').disabled=false;
-    }
-    function updateProgress(){ document.querySelector('.progress-bar').style.width=(answeredCount/NUM_QUESTIONS*100)+'%'; }
-    function showScore(){ let sc=0; document.querySelectorAll('[id^="group-"]').forEach(g=>{ if(g.dataset.correct==='true') sc++; }); document.getElementById('result').textContent=`Az összpontszámod: ${sc} / ${NUM_QUESTIONS}`; document.getElementById('submit-btn').disabled=true; }
-    function shuffle(a){ for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a; }
+
+    document.getElementById('restart').addEventListener('click', startQuiz);
+    window.onload = startQuiz;
   </script>
 </body>
 </html>
