@@ -3,13 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Igaz/Hamis Kvíz</title>
+  <title>Feleletválasztós Kvíz</title>
   <style>
     body { font-family: Arial, sans-serif; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
     h1 { text-align: center; }
-    .info { text-align: center; margin-bottom: 1rem; }
     .question { margin-bottom: 1.5rem; padding: 1rem; border: 1px solid #ddd; border-radius: 5px; }
-    .answers button { margin-right: 1rem; }
+    .answers button { display: block; margin: 0.5rem 0; width: 100%; text-align: left; }
     .correct { color: green; font-weight: bold; }
     .incorrect { color: red; font-weight: bold; }
     #restart { display: block; margin: 2rem auto; padding: 0.5rem 1rem; font-size: 1rem; }
@@ -17,118 +16,55 @@
   </style>
 </head>
 <body>
-  <h1>Igaz/Hamis Kvíz</h1>
-  <div class="info">
-    <p>Összes kérdés: <span id="total"></span></p>
-  </div>
+  <h1>Feleletválasztós Kvíz</h1>
   <div id="quiz"></div>
   <button id="restart">Új kvíz</button>
   <div id="result"></div>
 
   <script>
- const allQuestions = [
-  { q: 'A háttértelevíziózás ma már egyáltalán nem jellemző', a: false },
-  { q: 'A közönség mint piac úgy határozható meg, mint a médiajavak és szolgáltatások valóságos és potenciális, ismert társadalmi-gazdasági jellemzőkkel bíró vásárlóinak összessége', a: true },
-  { q: 'Az újságírás a 20. században volt jellemző műfaj, ma már nincs semmilyen funkciója', a: false },
-  { q: 'A digitális platformok és a hagyományos médiavállalatok közötti viszony a frenemy kifejezéssel írható le', a: true },
-  { q: 'A SVOD üzleti modell nem terjedt el a digitális médiában', a: false },
-  { q: 'Az Amerikai Egyesült Államokban a digitális műholdas rádió platformok a fizető rádiózás üzleti modelljét követik', a: true },
-  { q: 'Az OTT a streaming szolgáltatások közé tartozik', a: true },
-  { q: 'A televíziózásban az ún. duális modell az amerikai piacon volt jellemző hetvenes-nyolcvanas években', a: false },
-  { q: 'A sokcsatornás televíziózás egyik jellemzője a tematikus csatornák megjelenése', a: true },
-  { q: 'Az IPTV mára kiszorította a piacról a műholdas televíziózást', a: false },
-  { q: 'A fogyasztás árrugalmassága a médiapiacon az 1970-es évek óta egyértelműen bizonyított', a: false },
-  { q: 'A médiaiparban érvényesül a választékgazdaságosság', a: true },
-  { q: 'A hagyományos és a digitális média ökoszisztémája egyáltalán nem tér el egymástól, csak más a terjesztési technológia', a: false },
-  { q: 'Az online tartalomszolgáltatás üzleti modelljére nem igaz a kétoldalú piac elmélet', a: false },
-  { q: 'A rádiózás fejlődésének amerikai útjában jóval kisebb volt az állam szerepe, mint Európában', a: true },
-  { q: 'Az interaktív televíziózás szolgáltatások alapjaiban változtatták meg a tévénézési szokásokat', a: false },
-  { q: 'A közszolgálati műsorszolgáltatás alapelvei közé tartozik a függetlenség', a: true },
-  { q: 'Az ezer lakosra jutó eladott napilapok számát tekintve nincs jelentős különbség az Európai Unió országaiban', a: false },
-  { q: 'Az újságkiadás bevételi szerkezetében a fogyasztóktól származó terjesztési bevételek mindig is jóval meghaladták a hirdetési bevételeket', a: false },
-  { q: 'A szociodemográfiai és gazdasági tényezőknek nincs lényegi szerepe a médiatermékek fogyasztásának alakulásában', a: false },
-  { q: 'A DAB a digitális rádiós műsorszórás egy szabványa', a: true },
-  { q: 'Az értéklánc különböző elemeinek tulajdonosi összekapcsolódását horizontális integrációnak nevezzük', a: false },
-  { q: 'A hosszú farok elmélet alapállítása, hogy rétegtermékek mindig is léteztek, de a digitális technológiának köszönhetően ezek terjesztési költsége jelentősen csökkent', a: true },
-  { q: 'A médiatermékek egyik sajátossága, hogy az első példány költsége kiugróan magas', a: true },
-  { q: 'Minden médiatermékre és médiaszolgáltatásra a kettős piacmodell jellemző', a: false },
-  { q: 'A televíziós műsorterjesztés digitalizálása nem volt érdemi hatással a televíziós piacra', a: false },
-  { q: 'A médiában egyaránt jellemző a horizontális, vertikális és diagonális integráció', a: true },
-  { q: 'A médiatermékek egyik jellegzetessége az alacsony határköltség', a: true },
-  { q: 'A médiatermék kettős piaca azt jelenti, hogy ha egy jó televízióműsornak híre megy, akkor sokan megnézik az ismétlést', a: false },
-  { q: 'A konvergencia egyik értelmezése az új, integrált szabályozó hatóságok kialakulása', a: true },
-  { q: 'A közszolgálati televíziózás lényege, hogy nem sugározhat hirdetéseket', a: false },
-  { q: 'A társadalmi státusz befolyásolja az újságok keresletét', a: true },
-  { q: 'A lappiacon a hirdetési bevételek jellemzően elenyészőek a lapértékesítésből származó bevételekhez képest', a: false },
-  { q: 'A szociodemográfiai és gazdasági tényezőknek nagy szerepe van a médiatermékek fogyasztásának alakulásában', a: true },
-  { q: 'A nagyközönség piacán a médiafogyasztás jövedelemrugalmatlansága az 1970-es évek óta egyértelműen bizonyított', a: false },
-  { q: 'A nagy forgalomirányító oldalak a hirdetési bevételek egyre nagyobb arányát szerzik meg', a: true },
-  { q: 'A Web 2.0 szolgáltatások nagyban építenek a fogyasztó által előállított tartalomra', a: true },
-  { q: 'Mind az USA-ban, mind Európában a televíziózás fejlődése lényegében követte a rádiózásban kialakult modelleket', a: true },
-  { q: 'A médiaiparban érvényesül a választékgazdaságosság', a: true },
-  { q: 'A nagy forgalomirányító oldalak a hirdetési bevételek egyre nagyobb arányát szerzik meg, veszélybe sodorva ezzel a médiavállalatok üzleti modelljét', a: true },
-  { q: 'A Web 2.0 szolgáltatások nagyban építenek a fogyasztó által előállított tartalomra', a: true },
-  { q: 'Mind az USA-ban, mind pedig Európában a televíziózás fejlődése lényegében követte a rádiózásban kialakult modelleket', a: true },
-  { q: 'A „format” típusú (szakosodott műsorszerkezetű) rádiózás általános jelenség az érett rádiópiacokon', a: true },
-  { q: 'Az OTT (over the top television) a hagyományos televíziózás műsorszolgáltatók lekérhető (on-demand) szolgáltatása', a: false },
-  { q: 'A sokcsatornás televíziózásban a szolgáltatás magánjószág jellegű', a: true },
-  { q: 'A streaming technológiák kiszorítottak minden korábbi televíziós műsorterjesztési technológiát', a: false },
-  { q: 'Az informercial kifejezés a tájékoztató és szórakoztató funkciók keveredésére utal a médiában', a: false },
-  { q: 'Az újságírás egyik fontos szerepe a közhatalom ellenőrzése, a „watchdog” funkció', a: true },
-  { q: 'A binge-watching („filmdarálás”) a digitális műholdas technológia megjelenésekor alakult ki', a: false },
-  { q: 'Magyarországon a televíziós műsorterjesztési piac digitalizálása a következő évtizedben várható', a: false },
-  { q: 'A diagonális integráció egyáltalán nem jellemző a médiában', a: false },
-  { q: 'A filléres szakadék (penny gap) modell azt mondja, hogy az ingyenes és fizetős termékek között jelentős keresleti különbség van, bármennyire is alacsony az ár', a: true },
-  { q: 'A médiatermékek esetében az első példány költsége és a további példányok előállítási költsége (határköltsége) között nincs érdemi különbség', a: false },
-  { q: 'A konvergencia kizárólag a vállalatok szervezeti dimenziójában érvényesül', a: false },
-  { q: 'A közszolgálati műsorszolgáltatás alapelvei közé tartozik az objektív, páratlan tájékoztatás', a: true },
-  { q: 'A nyomtatott lapok olvasottságában a fejlett országokban voltak ugyan kisebb-nagyobb hullámok, de az elmúlt évtizedeket tekintve stabilitást mutatnak az adatok', a: false },
-  { q: 'A hirdetők esetében éppúgy jellemző a termelőkkel szembeni információs aszimmetria, mint a nagyközönség és a médiavállalatok kapcsán', a: false },
-  { q: 'A nagyközönség piacán a médiafogyasztás jövedelemrugalmas', a: true },
-  { q: 'A médiaiparban érvényesül a méretgazdaságosság', a: true },
-  { q: 'A fogyasztó által előállított tartalom (user generated content) fontos szerepet tölt be a Web 2.0 szolgáltatások piacán', a: true },
-  { q: 'A fejlett országokban a hagyományos rádiózás teljesen visszaszorult, a streaming zenei szolgáltatások lényegében megszüntették ezt a piacot', a: false },
-  { q: 'Az európai uniós és a magyarországi szabályozásban is az audiovizuális médiaszolgáltatás része a lekérhető (on demand) szolgáltatás', a: true },
-  { q: 'A duális televíziós modell azt jelenti, hogy a hazai és külföldi csatornák is elérhetők a piacon', a: false },
-  { q: 'A sokcsatornás televíziózás a digitális műsorterjesztés általánossá válásával valósult meg', a: false },
-  { q: 'A tévénézési szokásokat egyáltalán nem befolyásolja a technológiai fejlődés', a: false },
-  { q: 'A tömegkommunikáció funkciói közül a tájékoztatás, a szórakoztatás, a rábeszélő és a kultúraközvetítő funkciók a legfontosabbak', a: true },
-  { q: 'A multitasking két vagy több tevékenység adott idő alatt történő párhuzamos végzését jelenti', a: true },
-  { q: 'A streaming szolgáltatások piacán az eseményalapú VOD fizetési modell terjedt el', a: false },
-  { q: 'A filléres szakadék (penny gap) modell azt mondja, a médiafogyasztók jövedelmi helyzete között kis különbségek vannak', a: false },
-  { q: 'A médiatermékek egyik jellegzetessége a magas határköltség', a: false },
-  { q: 'A médiatermékek kettős/kétoldalú piaca azt jelenti, a nagyközönség piac és a hirdetők piac is vevőnek tekinthető', a: true },
-  { q: 'Közszolgálati műsorszolgáltatás ma már nem jellemző sehol a világon, ez a múlt század közepének televíziós modellje volt', a: false },
-  { q: 'A társadalmi-gazdasági változók nagyban befolyásolják a lapolvasási szokásokat', a: true },
-  { q: 'Az amerikai rádiózás és televíziós piac egyik jellemzője a hálózatosodás', a: true },
-  { q: 'A fejlett országokban a televízió nézését ma már elsősorban műszeres technológiával mérik', a: true },
-  { q: 'Az infotainment kifejezés a tájékoztató és szórakoztató funkciók keveredésére utal a médiában', a: true },
-  { q: 'A freemium modell a digitális médiában lényegében vegyes modell, az ingyenes tartalmak mellett az előfizetők extra tartalmakhoz is hozzájutnak', a: true },
-  { q: 'A konvergencia egyik értelmezése a fogyasztói felületek/eszközök konvergálása', a: true },
-  { q: 'A lappiacon a cím a marketingben használatos márka rokonfogalma', a: true },
-  { q: 'A választékgazdaságosság azt jelenti, hogy a termelt mennyiség növelésével az állandó költségek egyre nagyobb darabszámú termék között oszlanak meg, így az egy termékre jutó állandó költség folyamatosan csökken', a: false },
-  { q: 'A digitális médiában a hagyományos értéklánc helyett inkább a komplex ökoszisztéma írja le az iparági szereplők kapcsolatrendszerét', a: true },
-  { q: 'A duális televíziós modellen már túllépett az idő, de ez egy fontos állomás volt a televíziózás 20. századi fejlődésében', a: true },
-  { q: 'Az infomercial szakkifejezés a tájékoztató és a rábeszélő (reklám) funkciók keveredésére utal a médiában', a: true },
-  { q: 'Az infomercial kifejezés a tájékoztató és a szórakoztató funkciók keveredésére utal a médiában', a: false },
-  { q: 'Az oknyomozó újságírás finanszírozásában megjelent a nonprofit modell', a: true },
-  { q: 'Az 1990-es években lényegében végbement a földfelszíni, a kábeles és műholdas televíziós műsorterjesztés digitalizálása és ennek köszönhetően nőtt a műsorterjesztési kapacitás', a: true },
-  { q: 'Az értéklánc azonos elemeinek tulajdonosi összekapcsolódását horizontális integrációnak nevezzük', a: true },
-  { q: 'A média-kereszttulajdonlás lényegében azt jelenti, hogy egy vállalat több médiaszektorban is jelen van', a: true },
-  { q: 'A médiatermékek kettős/kétoldalú piaca azt jelenti, hogy alapvetően elválik egymástól a tartalom előállítása, illetve a terjesztés', a: false },
-  { q: 'A konvergencia a médiagazdaságtanban lényegében a média, a távközlés és az informatika összeolvadása', a: true },
-  { q: 'A kutatások szerint az újságok egyik versenyelőnye az olvasók részéről megnyilvánuló bizalom', a: true },
-  { q: 'A helyi újságpiacokon gyakran alakul ki monopólium', a: true },
-  { q: 'A rádiós piac európai és amerikai fejlődése ugyanazt az utat követte', a: false },
-  { q: 'Magyarországon az audiovizuális piac szabályozásának már része a lekérhető (on demand) tartalmak piaca is', a: true },
-  { q: 'A duális televíziós modell a kereskedelmi és állami/közszolgálati modell elegyét jelenti', a: true },
-  { q: 'A kábelellátottság az európai országokban többé-kevésbé egyforma, mindenhol ez a fő műsorterjesztési platform', a: false },
-  { q: 'A „hátradőlős képernyő” (lean-back media) lényege, hogy a néző ingyen kapja a műsort: csak hátra kell dőlnie és élveznie kell', a: false },
-  { q: 'Az oknyomozó újságírás finanszírozása a mai médiakörnyezetben bizonytalan, egyelőre nem látszódik a fenntartható üzleti modell', a: true },
-  { q: 'A svájci bicska dilemma azt mondja, hogy az infokommunikációs szektor konvergens, multifunkcionális eszközei bizonyos helyzetekben nagyon hasznosak, de nem szorítják ki az eredeti eszközöket', a: true }
-];
+    const allQuestions = [
+      { q: 'Mit jelent a "feature selection" a képfeldolgozásban?', choices: ['Az eredményt legjobban befolyásoló tulajdonságok kiválasztása','A kategória változók konvertálása numerikussá','A tulajdonságok véletlenszerű kiválasztása a modellezéshez','A kategória változók konvertálása bináris változókká'], a: 0 },
+      { q: 'Mi az n-gram a természetes nyelvi feldolgozásban?', choices: ['n dokumentumban lévő szóegyezések','n darab azonos szó egy szövegben','n egységből álló szekvencia egy szövegben','n elem vektor a természetes nyelvi feldolgozásban'], a: 2 },
+      { q: 'Hogyan választjuk ki az SVM módszerben a határoló hipersíkot?', choices: ['A legkisebb dimenziójú hipersíkot választjuk.','A határoló hipersík merőleges az egyes osztályok alkotta síkra.','A határoló hipersík távolsága a két osztálytól egyenlő kell, hogy legyen','A határoló hipersík a legjobban közelíti az egyik osztályt.'], a: 1 },
+      { q: 'Mi a document-term mátrix?', choices: ['Egy dokumentum gyűjteményben előforduló kifejezések gyakoriságának leírása','Egy dokumentumban előforduló kifejezések gyakoriságának leírása','Egy dokumentumban lévő fontos kifejezések összessége','Az egyes angol szavak előfordulásának gyakorisága egy dokumentumban'], a: 0 },
+      { q: 'Az SVM módszernél milyen eloszlást feltételezünk a bemenő adatok esetén?', choices: ['Binomiális eloszlást feltételezünk','Normális eloszlást feltételezünk.','Egyenletes eloszlást feltételezünk','Nem feltételezünk semmilyen eloszlást'], a: 3 },
+      { q: 'Hány paramétere van a BERT modellnek?', choices: ['Néhány százezer','Kevesebb, mint 10 millió','Több, mint 100 millió','Több, mint 10 millió, de kevesebb, mint 100 millió'], a: 3 },
+      { q: 'Mit jelent a "specificity" érték egy dokumentum keresésénél?', choices: ['A nem relevánsnak ítélt dokumentumok aránya a relevánsnak ítéltekhez képest.','A nem relevánsnak ítélt dokumentumok aránya az összes dokumentumhoz képest.','A nem relevánsnak ítélt dokumentumok aránya az összes dokumentumhoz képest.','A nem relevánsnak ítélt dokumentumok aránya az összes nem releváns dokumentumhoz képest'], a: 0 },
+      { q: 'Mi a BERT modell?', choices: ['Angol nyelvű, a természetes nyelvi feldolgozásban használható témamodell.','Természetes nyelvi feldolgozásban használható felügyelt tanulási modell.','Természetes nyelvi feldolgozásban használható előre tanított modell.','Természetes nyelvi feldolgozásban használható felügyelet nélküli modell.'], a: 2 },
+      { q: 'Az alábbiak AUC értékek közül melyik jellemzi a legjobb modellt?', choices: ['AUC=0','AUC=0,5','AUC=0,78','AUC=0,76'], a: 2 },
+      { q: 'Hogyan működik a konvolúciós neurális háló?', choices: ['A paraméterek csökkentése érdekében egy csúszó szűrőt alkalmaz a képeken és a szűrő által előállított adatot viszi át a következő rétegre.','A képen lévő torzításokat tünteti el.','A képen lévő arcok kontúrjainak javítására szolgál.','A rejtett rétegek neuronjainak aktivációs függvényeit határozza meg.'], a: 0 },
+      { q: 'Mit jelent a "feature extraction" a képfeldolgozási algoritmusban?', choices: ['Az arcfelismerésben egy-egy jellegzetes arc részlet kiemelése','Az arc elhelyezkedésének korrigálása','A "feature extraction" képek jellemzőinek numerikus, informatív formában való megjelenítése.','A mélytanuló algoritmusokban a rejtett hálók tulajdonságainak kiemelése.'], a: 2 },
+      { q: 'Hány neuron van egy neurális háló input rétegében, ha 28x28-pixelből álló fekete-fehér képeket dolgozunk fel?', choices: ['28x28','Ez az elemző döntése a kép szerkezete alapján.','Független a kép méretétől','28x28x3'], a: 0 },
+      { q: 'Mire használjuk a konvolúciós neurális hálót?', choices: ['Képek pixel szintű összehasonlítására.','Színes képek szürkeárnyalatos képekké konvertálására','Képek jellemzőinek kinyerésére klasszifikációs célból','Képek közötti távolságok meghatározására.'], a: 2 },
+      { q: 'Mit jelent az, hogy az adatok kiegyensúlyozatlanok egy felügyelt gépi tanulásnál?', choices: ['A tanuló adatok eloszlása jelentősen eltér a normális eloszlástól.','A tesztadatok eloszlása jelentősen eltér a tanuló adatok eloszlásától.','A tanuló és a tesztadatok esetén a célosztályba tartozó adatok mennyiségének aránya jelentősen eltér.','A célosztályba tartozó adatok mennyisége jelentősen eltér a nem célosztályba tartozó adatokétól.'], a: 3 },
+      { q: 'Mi a felügyelt és a felügyelet nélküli tanulás közötti különbség?', choices: ['A felügyelt tanulás esetén tudjuk, mely objektumok tartoznak a célosztályba.','A tanulás során az adatok kiválasztását előre meghatározzuk','A felügyelt tanulás esetén az elemző folyamatosan figyeli az algoritmus futását.','Mindig optimalizáljuk a következő lépést.'], a: 0 },
+      { q: 'Hogyan számoljuk ki a "recall" értékét egy kétosztályos klasszifikációnál?', choices: ['(TP+TN)/(TP+TN+FP+FN)','TP/(TP+TN+FP+FN)','TP/(TP+TN)','TP/(TP+FN)'], a: 3 },
+      { q: 'Mi a batch méret egy neurális háló modellnél?', choices: ['A minta változóinak mérete.','A minta gépi tanulásban egyszerre használt részének mérete.','A minta halmaz mérete.','A minta változóinak száma.'], a: 1 },
+      { q: 'Hogyan lehet osztályozni az SVM modellben a nem szeparálható halmazokat?', choices: ['A kernel módszerrel.','Több hipersíkkal','Perceptronnal','Magasabb fokú polinommal leírható felülettel'], a: 0 },
+      { q: 'Mit nevezünk konvolúciós algoritmusnak a neurális hálók tanításánál?', choices: ['Amikor az algoritmus csak minden n-edik pixelt veszi figyelembe.','Amikor az algoritmus egyszerre több képet dolgoz fel.','Amikor az algoritmus csak egy kis részét dolgozza fel a képnek.','Amikor az algoritmus kiválasztja a leginkább reprezentatív pixelt.'], a: 2 },
+      { q: 'Mit jelent a felügyelt gépi tanulás a természetes nyelvi elemzésben?', choices: ['A dokumentumokban előforduló szavak alapján történő klasszifikáció','Szövegek feldolgozása kulcsszavakkal','Kifejezések alapján történő klasszifikáció','Nyelvtani kategóriák alapján címkézett szövegek elemzése.'], a: 3 },
+      { q: 'Mit jelent a túlillesztés egy gépi tanuló modell esetén?', choices: ['A tanuló adatokon a modell sokkal pontosabb, mint a tesztadatokon.','A modell sokkal pontosabb a tesztadatokon.','Az AUC értéke 1.','Az AUC értéke 0 és 0,5 között.'], a: 0 },
+      { q: 'Melyik döntési paraméter jellemző a döntési fákra?', choices: ['Entrópia nyereség','F1 mutató','Kappa statisztika','ROC görbe'], a: 0 },
+      { q: 'Mit jelent egy epoch egy neurális háló modellnél?', choices: ['A teljes minta egyszeri használata egy tanulási ciklusban.','Egy elem használata a tanulásban.','A tanulás indításától a stop kritériumig.','Iterációk száma.'], a: 0 },
+      { q: 'Mi a mélytanulás?', choices: ['Olyan neurális háló, amelyben a neuronok száma meghaladja az ezret.','Több rejtett réteggel rendelkező neurális háló gépi tanulása.','Nagyszámú összeköttetésű háló.','Véletlenszerű súlyok.'], a: 1 },
+      { q: 'Mi a dropout célja egy neurális háló modellnél?', choices: ['A hibás rétegek pótlása.','A kieső neuronok pótlása.','A túllillesztés elkerülése.','Az alulillesztés elkerülése'], a: 2 },
+      { q: 'Ha csökkentjük a sensitivity értéket, mi történik a specificity értékkel?', choices: ['Csökken','Növekszik','Változatlan','Függ a modelltől'], a: 1 },
+      { q: 'Hogyan számoljuk ki az "accuracy" értékét?', choices: ['TP/(TP+TN+FP+FN)','TP/(TP+TN)','TP/TN','(TP+TN)/(TP+TN+FP+FN)'], a: 3 },
+      { q: 'Miért fontos, hogy egy neurális háló aktivációs függvénye differenciálható legyen?', choices: ['Gyorsabb feldolgozás','Globális minimum hiánya','Szükséges a hiba-visszaterjesztéshez','Lokális minimum elkerülése'], a: 2 },
+      { q: 'A témamodellezés felügyelt vagy felügyelet nélküli tanulás?', choices: ['Felügyelt','Mindkettő lehet','Egyik sem','Felügyelet nélküli'], a: 3 },
+      { q: 'Mit jelent a témamodellezés?', choices: ['Dokumentumok témájának kimutatására használt statisztikai eszköz','Gradiens módszer','Neurális hálós témamodellek','Webes témakeresés'], a: 0 },
+      { q: 'Mit nevezünk stopword-nek a természetes nyelvi feldolgozásban?', choices: ['Lezáró szavak','Tartalmat nem befolyásoló szavak','Lezárást jelző kifejezések','Témaváltó szavak'], a: 1 },
+      { q: 'Mi az arcfelismerés lényege?', choices: ['Arcképek összehasonlítása','Jellemzők kinyerése','Osztályozás jellemzők alapján','Megadott arckép keresése adatbázisban'], a: 3 },
+      { q: 'Miért használjuk a szürkeárnyalatos képeket?', choices: ['Több információt tartalmaznak','Szín nem összehasonlítható','Színeket nem lehet tárolni','Színre nincs szükség'], a: 3 },
+      { q: 'Mi a deepfake?', choices: ['Valóságban nem létező kép vagy videó','Festmények hamisítása','Hamis chatbot','Megerősített tanulás'], a: 0 },
+      { q: 'Mit jelent a "sensitivity" érték?', choices: ['Meg nem talált releváns aránya','Meg nem talált releváns az összes dokumentumhoz','Megtalált releváns az összes releváns dokumentumhoz','Nem releváns aránya'], a: 2 },
+      { q: 'Mi a dimenziócsökkentés célja?', choices: ['A cél az síkban történő ábrázolás lehetővé tétele','Az ismeretlen hatású paraméterek kiszűrése','A modell gyorsabb, hatékonyabb létrehozása.','A modell tesztelése kevesebb tulajdonsággal'], a: 3 },
+      { q: 'Mi a transzfer-tanulás (transfer-learning)?', choices: ['Felügyelet nélküli modellek alkalmazása felügyelt modellek címkézésére.','Felügyelt nyelvi modellek alkalmazása természetes nyelvi modellekben.','Klaszterelemzés alkalmazása n-gramokon','Előre betanított modellek használata neurális hálókban.'], a: 3 },
+      { q: 'Mit jelent a sztochasztikus gradiens módszer a gépi tanulásnál?', choices: ['Az iteratív optimalizálásnál véletlen hibafüggvényt számol','Random mintavétel alapján közelítő gradienssel számol az optimalizálásnál.','A hibafüggvény minimalizálásánál véletlen optimumot keres.','A hibafüggvényt véletlenszerűen optimalizálja.'], a: 1 },
+      { q: 'Mit jelent az, hogy az adatok kiegyensúlyozatlanok egy felügyelt gépi tanulásnál?', choices: ['A tesztadatok eloszlása jelentősen eltér a tanuló adatok eloszlásától.','A célosztályba tartozó adatok mennyisége jelentősen eltér a nem célosztályba tartozó adatokétól.','A tanuló és a tesztadatok esetén a célosztályba tartozó adatok mennyiségének aránya jelentősen eltérő.','A tanuló adatok eloszlása jelentősen eltér a normális eloszlástól.'], a: 1 },
+      { q: 'Mi a Reguráris kifejezések feladata?', choices: ['A leggyakoribb angol kifejezések fordítása egy köztes nyelvre.','A struktúrálatlan szöveg struktúrába szervezése.','Szövegből szabvályos n-grammok készítése.','Egy minta keresése szövegben'], a: 2 }
+    ];
 
-    document.getElementById('total').textContent = allQuestions.length;
     let score = 0;
     let answered = 0;
 
@@ -148,23 +84,22 @@
 
       const copy = [...allQuestions];
       shuffle(copy);
-      const selected = copy.slice(0, 50);
+      const selected = copy.slice(0, 40);
       selected.forEach((item, idx) => {
         const div = document.createElement('div');
         div.className = 'question';
         div.innerHTML = `<p><strong>${idx+1}. ${item.q}</strong></p>`;
         const ansDiv = document.createElement('div');
         ansDiv.className = 'answers';
-        ['Igaz', 'Hamis'].forEach(text => {
+        item.choices.forEach((choice, cidx) => {
           const btn = document.createElement('button');
-          btn.textContent = text;
+          btn.textContent = choice;
           btn.onclick = () => {
-            const isTrue = text === 'Igaz';
-            if (isTrue === item.a) score++;
+            if (cidx === item.a) score++;
             answered++;
             const span = document.createElement('span');
-            span.textContent = isTrue === item.a ? ' ✔️' : ' ❌';
-            span.className = isTrue === item.a ? 'correct' : 'incorrect';
+            span.textContent = (cidx === item.a) ? ' ✔️' : ' ❌';
+            span.className = (cidx === item.a) ? 'correct' : 'incorrect';
             ansDiv.appendChild(span);
             ansDiv.querySelectorAll('button').forEach(b => b.disabled = true);
             if (answered === selected.length) {
