@@ -101,6 +101,12 @@
             span.textContent = (cidx === item.a) ? ' ✔️' : ' ❌';
             span.className = (cidx === item.a) ? 'correct' : 'incorrect';
             ansDiv.appendChild(span);
+            if (cidx !== item.a) {
+              const correctAnswer = document.createElement('div');
+              correctAnswer.textContent = 'Helyes válasz: ' + item.choices[item.a];
+              correctAnswer.className = 'correct';
+              ansDiv.appendChild(correctAnswer);
+            }
             ansDiv.querySelectorAll('button').forEach(b => b.disabled = true);
             if (answered === selected.length) {
               document.getElementById('result').innerHTML = `<p>Elért pontszám: ${score} / ${selected.length}</p>`;
